@@ -1,5 +1,6 @@
 #define MODE_HELLO_WORLD    (1)
 #define MODE_HELLO_KM       (2)
+#define MODE_ELSE           (3)
 
 #define WAIT_TIME           (20) // [ms]
 
@@ -24,6 +25,9 @@ void loop()
         }
 		else if(getstr == 'k') {
             g_display_mode = MODE_HELLO_KM;
+        }
+    else {
+            g_display_mode = MODE_ELSE;
         }
     }
 
