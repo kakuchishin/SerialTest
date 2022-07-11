@@ -3,17 +3,17 @@ pipeline {
     environment {
         // ↓ 新しいリポジトリを解析する場合に変更する
         MAIL = 'shin.kakuchi@konicaminolta.com'
-        SCA_PROJECT_NAME = 'test'
-        SCA_BUILD_ID = 'test'
-        SCA_ANALYZE_FILE = 'source_test.zip'
-        SCA_ANALYZE_DIR = 'dir_test'
-        SCA_ANALYZE_RESULTS = 'fscan_test.fpr'
-        SCA_LOG = 'log_test.txt'
-        SCA_LOG_SCAN = 'logscan_test.txt'
+        SCA_PROJECT_NAME = 'test999'
+        SCA_BUILD_ID = 'test999'
+        SCA_ANALYZE_FILE = 'source_test999.zip'
+        SCA_ANALYZE_DIR = 'dir_test999'
+        SCA_ANALYZE_RESULTS = 'fscan_test999.fpr'
+        SCA_LOG = 'log_test.999txt'
+        SCA_LOG_SCAN = 'logscan_test999.txt'
         // ↓ pythonを使用しない場合は/,複数のdirを指定する場合は:で区切る path1:path2
         PYTHON_PATH = '/'
         // ↓ 静的解析のバージョンを切り替えたい場合変更する
-        SCA_PROJECT_VERSION_NAME = '1'
+        SCA_PROJECT_VERSION_NAME = '1.0'
         // ↓ 固定
         SCA_USER = 'iotpf_freid'
         SSC_USER = 'iotpf_freid'
