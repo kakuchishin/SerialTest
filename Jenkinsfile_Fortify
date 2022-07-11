@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+    environment {
+        // ↓ 新しいリポジトリを解析する場合に変更する
+        MAIL = 'shin.kakuchi@konicaminolta.com'
+        SCA_PROJECT_NAME = 'test'
+        SCA_BUILD_ID = 'test'
+        SCA_ANALYZE_FILE = 'source_test.zip'
+        SCA_ANALYZE_DIR = 'dir_test'
+        SCA_ANALYZE_RESULTS = 'fscan_test.fpr'
+        SCA_LOG = 'log_test.txt'
+        SCA_LOG_SCAN = 'logscan_test.txt'
+        // ↓ pythonを使用しない場合は/,複数のdirを指定する場合は:で区切る path1:path2
+        PYTHON_PATH = '/'
+        // ↓ 静的解析のバージョンを切り替えたい場合変更する
+        SCA_PROJECT_VERSION_NAME = '1.0'
+        // ↓ 固定
+        SCA_USER = 'iotpf_freid'
+        SSC_USER = 'iotpf_freid'
+        SSC_PASSWORD = 'ZAxscdvfbgnhmj12!'
+        SSC_AUTH = 'aW90cGZfZnJlaWQ6WkF4c2NkdmZiZ25obWoxMiE='
+        
+    } 
+    stages {
+        stage('CREATE') {
+            steps {
+                sh ''' 
+                    echo ${SCA_SCRIPT_PATH}${SCA_SCRIPT_FILE_CREATE}
+                    python3 ${SCA_SCRIPT_PATH}${SCA_SCRIPT_CREATE} -n ${SCA_PROJECT_NAME} -v ${SCA_PROJECT_VERSION_NAME} -t ${SSC_AUTH}
+                ''' 
+            }
+        }
+        stage('SRC_ZIP') {
+            steps {
+                sh ''' 
+                    zip ${SCA_ANALYZE_FILE} -r . -x Jenkinsfile_Fortify
+                    ls -l
+                ''' 
+            }
+        }
+        stage('ANALYZE') {
+            steps {
+                sshagent(["fortify-sca"]) {
+                    sh 'scp "${SCA_ANALYZE_FILE}" ${SCA_USER}@10.255.78.4:~'
+                sh 'scp "${SCA_SCRIPT_PATH}${SCA_SCRIPT_ANALYZE}" ${SCA_USER}@10.255.78.4:~'
+                    sh 'ssh ${SCA_USER}@10.255.78.4 ./"${SCA_SCRIPT_ANALYZE}" "${SCA_PROJECT_NAME}" "${SCA_PROJECT_VERSION_NAME}" "${SSC_USER}" "${SSC_PASSWORD}" "${SCA_BUILD_ID}" "${SCA_ANALYZE_FILE}" "${SCA_ANALYZE_DIR}" "${SCA_ANALYZE_RESULTS}" "${SCA_LOG}" "${SCA_LOG_SCAN}" "${PYTHON_PATH}"'
+                }
+            }
+        } 
+        stage('RM') {
+            steps {
+                sh 'rm -R *'
+            }
+        }
+    }
+    post {
+        always {
+            timestamps {
+                logstash {
+                    echo ','+currentBuild.currentResult+',Fortify,' + SCA_PROJECT_NAME +','+ SCA_PROJECT_VERSION_NAME +','+ SSC_USER
+               }
+            }
+             sendMail(currentBuild.currentResult)
+        }
+    }
+}
+def sendMail(result) {
+    mail to: "${MAIL}",
+        subject: "${env.JOB_NAME} #${env.BUILD_NUMBER} [${result}]",
+        body: "Build URL: ${env.BUILD_URL}.\n\n"
+}
