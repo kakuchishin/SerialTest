@@ -13,7 +13,7 @@ pipeline {
         // ↓ pythonを使用しない場合は/,複数のdirを指定する場合は:で区切る path1:path2
         PYTHON_PATH = '/'
         // ↓ 静的解析のバージョンを切り替えたい場合変更する
-        SCA_PROJECT_VERSION_NAME = '1.0'
+        SCA_PROJECT_VERSION_NAME = '1.1'
         // ↓ 固定
         SCA_USER = 'iotpf_freid'
         SSC_USER = 'iotpf_freid'
